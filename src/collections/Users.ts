@@ -7,6 +7,10 @@ export const Users: CollectionConfig = {
     defaultColumns: ['firstName', 'email'],
   },
   auth: true,
+  access: {
+    // Allow public read so author info can be populated in posts
+    read: () => true,
+  },
   fields: [
     {
       name: 'firstName',
