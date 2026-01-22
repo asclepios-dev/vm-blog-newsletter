@@ -13,7 +13,7 @@ This is a **separate standalone project** from the main Vraja Marii by the Sea w
 - **Work GitHub Account**: Owns this Payload CMS repository
 - **Personal GitHub Account**: Added as collaborator (allows commit/push from personal local setup)
 - **Branch Strategy:**
-  - `main` - Production (auto-deploys to Railway)
+  - `main` - Production (auto-deploys to Vercel)
   - `dev` - Development branch
   - Feature branches as needed
 
@@ -23,28 +23,28 @@ This is a **separate standalone project** from the main Vraja Marii by the Sea w
 
 ### Deployment Strategy
 
-**Railway (Work GitHub Account):**
+**Vercel (Work GitHub Account):**
 - Payload CMS (Next.js application)
+- Production URL: https://vm-blog-newsletter.vercel.app
+
+**NeonDB (via Vercel Integration):**
 - PostgreSQL (blog content, likes, subscribers)
+- Serverless PostgreSQL with connection pooling
+
+**Upstash (via Vercel Integration):**
 - Redis (rate limiting for anonymous likes)
 
-**Vercel (Personal GitHub):**
-- Vraja Marii by the Sea frontend (fetches blog posts via Payload API)
-
-**Cloudflare (Work Email):**
+**Cloudflare:**
 - R2 Storage (image uploads, 10GB free tier)
 
-**Resend (Work Email/Domain Access):**
+**Resend:**
 - Email sending service (3,000 emails/month free tier)
 - Handles newsletter distribution
 
 ### Domain Structure
 ```
 bythesea.vrajamarii.ro → Main website (Vercel)
-cms.vrajamarii.ro → Payload admin panel (Railway)
-api.vrajamarii.ro → Payload API (Railway)
-OR
-marketing.vrajamarii.ro → Combined admin + API (Railway)
+vm-blog-newsletter.vercel.app → Payload CMS (Vercel) - to be mapped to custom domain
 ```
 
 ---
@@ -57,8 +57,8 @@ marketing.vrajamarii.ro → Combined admin + API (Railway)
 - **Payload CMS 3.x** (headless CMS)
 
 ### Database & Cache
-- **PostgreSQL** (primary database via Railway)
-- **Redis** (rate limiting, caching)
+- **PostgreSQL** (NeonDB - serverless PostgreSQL)
+- **Redis** (Upstash - serverless Redis)
 
 ### Storage & Email
 - **Cloudflare R2** (S3-compatible image storage)
@@ -117,17 +117,19 @@ GET /api/posts/:slug/likes - Get like count
 ### Prerequisites
 - Node.js 18+ (preferably via nvm)
 - pnpm (package manager)
-- PostgreSQL (local or Docker)
-- Redis (local or Docker)
+- Vercel CLI (for pulling environment variables)
 
 ### Initial Setup
 ```bash
 # Install dependencies
 pnpm install
 
-# Setup environment variables
+# Pull environment variables from Vercel (recommended)
+vercel env pull .env
+
+# Or manually setup environment variables
 cp .env.example .env
-# Edit .env with local database credentials
+# Edit .env with NeonDB and Upstash credentials
 
 # Start development server
 pnpm dev
@@ -173,7 +175,9 @@ pnpm dev
 ## Budget Considerations
 
 ### Free Tier Limits
-- **Railway**: $5 credit/month
+- **Vercel**: Hobby plan (free)
+- **NeonDB**: 0.5 GB storage, 191 compute hours/month (free tier)
+- **Upstash**: 10,000 commands/day (free tier)
 - **Cloudflare R2**: 10GB storage, unlimited egress
 - **Resend**: 3,000 emails/month, 100/day
 

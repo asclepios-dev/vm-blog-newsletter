@@ -1,5 +1,26 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import {
+  lexicalEditor,
+  FixedToolbarFeature,
+  HeadingFeature,
+  BoldFeature,
+  ItalicFeature,
+  UnderlineFeature,
+  StrikethroughFeature,
+  SubscriptFeature,
+  SuperscriptFeature,
+  AlignFeature,
+  IndentFeature,
+  UnorderedListFeature,
+  OrderedListFeature,
+  ChecklistFeature,
+  LinkFeature,
+  BlockquoteFeature,
+  HorizontalRuleFeature,
+  InlineCodeFeature,
+  UploadFeature,
+  ParagraphFeature,
+} from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -25,7 +46,59 @@ export default buildConfig({
     },
   },
   collections: [Users, Media, Posts, Subscribers],
-  editor: lexicalEditor(),
+  editor: lexicalEditor({
+    features: [
+      // Fixed toolbar at the top (Word-like)
+      FixedToolbarFeature(),
+
+      // Text structure
+      ParagraphFeature(),
+      HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
+
+      // Text formatting (Bold, Italic, Underline, etc.)
+      BoldFeature(),
+      ItalicFeature(),
+      UnderlineFeature(),
+      StrikethroughFeature(),
+      SubscriptFeature(),
+      SuperscriptFeature(),
+      InlineCodeFeature(),
+
+      // Text alignment (Left, Center, Right, Justify)
+      AlignFeature(),
+      IndentFeature(),
+
+      // Lists
+      UnorderedListFeature(),
+      OrderedListFeature(),
+      ChecklistFeature(),
+
+      // Block elements
+      BlockquoteFeature(),
+      HorizontalRuleFeature(),
+
+      // Media and links
+      LinkFeature(),
+      UploadFeature({
+        collections: {
+          media: {
+            fields: [
+              {
+                name: 'alt',
+                type: 'text',
+                label: 'Alt Text',
+              },
+              {
+                name: 'caption',
+                type: 'text',
+                label: 'Caption',
+              },
+            ],
+          },
+        },
+      }),
+    ],
+  }),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
